@@ -230,6 +230,129 @@ pi - AI 程式代理，具備 read、bash、edit、write 工具
 | `find` | 以萬用字元模式尋找檔案（唯讀，預設停用） |
 | `ls` | 列出目錄內容（唯讀，預設停用） |
 
+## pi 功能展示範例
+
+pi 的強大之處在於其**高度可擴展性**。以下展示官方範例擴展套件的能力：
+
+### 🎮 遊戲 Overlay（展示 TUI 能力）
+
+**`examples/extensions/doom-overlay/`** — 在終端機裡玩 DOOM！
+
+```bash
+pi --extension ./examples/extensions/doom-overlay
+/doom-overlay
+```
+
+展示功能：
+- 覆盖層即時渲染
+- 35 FPS 游戲循環
+- 自定義 UI 元件
+
+另有 **`snake.ts`**（贪吃蛇）和 **`tic-tac-toe.ts`**（井字棋）展示互動式遊戲。
+
+### 🤖 Subagent 子代理（展示多代理協作）
+
+**`examples/extensions/subagent/`** — 派遣專門的子代理處理任務
+
+```typescript
+// 三種模式：
+{ agent: "代碼審查", task: "檢查 src/ 目錄" }           // 單一
+{ tasks: [{ agent: "測試", task: "..." }, ...] }         // 并行
+{ chain: [{ agent: "分析", task: "... {previous}" }] }   // 鏈式
+```
+
+子代理擁有獨立的上下文窗口，可做專門工作如測試、代碼審查、文件生成等。
+
+### 📋 Plan Mode 規劃模式
+
+**`examples/extensions/plan-mode/`** — Claude Code 風格的規劃模式
+
+- 只讀探索階段（限制危險操作）
+- 自動提取計劃步驟
+- 執行階段追蹤進度 `[DONE:n]`
+- 狀態持久化，支援會話恢復
+
+```bash
+pi --extension ./examples/extensions/plan-mode --plan
+```
+
+### 🖥️ SSH 远端執行
+
+**`examples/extensions/ssh.ts`** — 所有工具远端執行
+
+```bash
+pi -e ./ssh.ts --ssh user@host:/remote/path
+```
+
+展示如何**替换内建工具**的操作实现，让 read/write/edit/bash 在远端机器上运行。
+
+### 🛡️ 安全與權限控制
+
+| 擴展套件 | 功能 |
+|---------|------|
+| `permission-gate.ts` | 危險命令確認（rm -rf, sudo 等） |
+| `protected-paths.ts` | 保護敏感文件（.env, .git/） |
+| `sandbox/` | 操作系統級沙箱隔離 |
+| `confirm-destructive.ts` | 会話操作確認 |
+
+### 🎨 自定義 UI 元件
+
+| 擴展套件 | 功能 |
+|---------|------|
+| `questionnaire.ts` | 多問題表單 + Tab 導航 |
+| `overlay-qa-tests.ts` | 覆盖層全面測試 |
+| `custom-footer.ts` | 自定義狀態欄 |
+| `modal-editor.ts` | Vim 風格模態編輯器 |
+
+### 🔧 SDK 嵌入式使用
+
+**`examples/sdk/`** — 在自己的應用中嵌入 pi
+
+```typescript
+import { createAgentSession } from "@mariozechner/pi-coding-agent";
+
+const { session } = await createAgentSession({
+  sessionManager: SessionManager.inMemory(),
+  // 自定義模型、工具、擴展...
+});
+
+await session.prompt("分析這個項目");
+```
+
+真實案例：**[openclaw/openclaw](https://github.com/openclaw/openclaw)** 使用 SDK 整合。
+
+### 📦 更多擴展範例
+
+完整列表請見 `packages/coding-agent/examples/extensions/`，包含 73 個範例：
+
+- Git 整合（checkpoint、auto-commit）
+- 自定義 compaction
+- 系統提示詞修改
+- 檔案監控
+- 通知系統
+- ...更多
+
+### 💡 核心設計哲學
+
+pi 的強大在於**可擴展性**而非内建功能：
+
+| ❌ 沒有内建 | ✅ 用擴展實現 |
+|------------|-------------|
+| MCP | Skills 或擴展 |
+| 子代理 | `subagent/` 擴展 |
+| 權限彈窗 | `permission-gate.ts` |
+| 計劃模式 | `plan-mode/` 擴展 |
+
+> **「Adapt pi to your workflows, not the other way around」** — 让 pi 适应你的工作流程，而不是反过来。
+
+### 📚 真實專案資源
+
+| 資源 | 連結 |
+|------|------|
+| npm 套件搜尋 | [npmjs.com/search?q=keywords:pi-package](https://www.npmjs.com/search?q=keywords%3Api-package) |
+| Discord 分享 | [Discord 頻道](https://discord.com/channels/1456806362351669492/1457744485428629628) |
+| 會話分享範例 | [badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono) |
+
 ## 參考資源
 
 - [GitHub Repository](https://github.com/badlogic/pi-mono)
